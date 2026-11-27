@@ -6,12 +6,13 @@ module RedmineBranding
   #   Admin-Vorgabe (Administration → Branding): home, my_page, projects
   #   oder custom (eigene Adresse)
   #   Benutzer (Mein Konto): leer = Vorgabe, sonst home, my_page, projects
+  #   oder custom mit eigener Adresse (ohne gültige Adresse gilt die Vorgabe)
   #
   # my_page gilt nur für angemeldete Benutzer, anonyme landen auf der
   # Startseite.
   module LogoLink
     CHOICES = %w[home my_page projects custom].freeze
-    USER_CHOICES = %w[home my_page projects].freeze
+    USER_CHOICES = CHOICES
     DEFAULT = 'my_page'
 
     module_function
@@ -29,7 +30,25 @@ module RedmineBranding
       return '' unless user&.logged?
 
       choice = user.pref.branding_logo_link.to_s
-      USER_CHOICES.include?(choice) ? choice : ''
+      return '' unless USER_CHOICES.include?(choice)
+      return '' if choice == 'custom' && !valid_url?(user_custom_url(user))
+
+      choice
+    end
+
+    def user_custom_url(user)
+      user.pref.branding_logo_link_url.to_s.strip
+    end
+
+    # Eigene Adresse, die für den Benutzer gilt: seine eigene, sonst die des Admins
+    def custom_url_for(user)
+      user_choice(user) == 'custom' ? user_custom_url(user) : custom_url
+    end
+
+    # Vorgabe des Admins als Text für die Auswahl beim Benutzer; bei einer
+    # eigenen Adresse die Adresse selbst
+    def admin_label
+      admin_choice == 'custom' && valid_url?(custom_url) ? custom_url : label_for(admin_choice)
     end
 
     def choice_for(user)
@@ -57,7 +76,7 @@ module RedmineBranding
       when 'projects'
         [controller.projects_path, I18n.t(:label_project_plural)]
       when 'custom'
-        url = custom_url
+        url = custom_url_for(user)
         valid_url?(url) ? [url, Setting.app_title] : [controller.home_path, I18n.t(:label_home)]
       else
         [controller.home_path, I18n.t(:label_home)]

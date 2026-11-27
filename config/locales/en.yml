@@ -26,8 +26,9 @@ en:
   field_branding_logo_link_url: Custom address
   label_branding_logo_link_custom: Custom address
   label_branding_logo_link_default: "Default (%{target})"
-  text_branding_logo_link_hint: Default for everyone; users can choose their own target under My account. "My page" sends anonymous visitors to the home page.
+  text_branding_logo_link_hint: Default for everyone; users can choose their own target under My account, including a custom address. "My page" sends anonymous visitors to the home page.
   text_branding_logo_link_url_hint: Only for "Custom address" – relative (/projects/internal) or with https://.
+  text_branding_logo_link_user_url_hint: Only for "Custom address" – relative (/projects/internal) or with https://. Without a valid address the default applies.
   text_branding_logo_link_url_placeholder: https://… or /projects/…
   error_branding_logo_link_url: Please enter a valid custom address (starting with / or https://).
 

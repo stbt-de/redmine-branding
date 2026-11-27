@@ -26,8 +26,9 @@ de:
   field_branding_logo_link_url: Eigene Adresse
   label_branding_logo_link_custom: Eigene Adresse
   label_branding_logo_link_default: "Standard (%{target})"
-  text_branding_logo_link_hint: Vorgabe für alle; Benutzer können unter Mein Konto ein eigenes Ziel wählen. „Meine Seite“ führt nicht angemeldete Besucher zur Hauptseite.
+  text_branding_logo_link_hint: Vorgabe für alle; Benutzer können unter Mein Konto ein eigenes Ziel wählen, auch eine eigene Adresse. „Meine Seite“ führt nicht angemeldete Besucher zur Hauptseite.
   text_branding_logo_link_url_hint: Nur für „Eigene Adresse“ – relativ (/projects/intern) oder mit https://.
+  text_branding_logo_link_user_url_hint: Nur für „Eigene Adresse“ – relativ (/projects/intern) oder mit https://. Ohne gültige Adresse gilt der Standard.
   text_branding_logo_link_url_placeholder: https://… oder /projects/…
   error_branding_logo_link_url: Bitte eine gültige eigene Adresse angeben (beginnend mit / oder https://).
 

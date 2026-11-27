@@ -55,8 +55,8 @@ Then, under *Administration → Branding*:
 
 Logo link: default "My page" (anonymous visitors go to the home page). A custom
 address may be relative to the installation (`/projects/internal`) or start with
-`https://`. Users can pick home, my page or projects in their preferences; only
-administrators can set a custom address.
+`https://`. Users can pick home, my page, projects or a custom address of their own
+in their preferences (*My account*); without a valid address the default applies.
 
 The interface is available in English and German.
 

@@ -61,7 +61,8 @@ class LogoLinkTest < Redmine::IntegrationTest
   def test_benutzer_waehlt_eigenes_ziel
     log_user('jsmith', 'jsmith')
     get '/my/account'
-    assert_select 'select#pref_branding_logo_link[name="pref[branding_logo_link]"] option', 4
+    assert_select 'select#pref_branding_logo_link[name="pref[branding_logo_link]"] option', 5
+    assert_select 'input#pref_branding_logo_link_url[name="pref[branding_logo_link_url]"]'
 
     put '/my/account', params: { user: { firstname: 'John' }, pref: { branding_logo_link: 'projects' } }
     assert_redirected_to '/my/account'
@@ -82,10 +83,46 @@ class LogoLinkTest < Redmine::IntegrationTest
     assert_equal '/', link_meta['content']
   end
 
-  def test_benutzer_kann_keine_eigene_adresse_setzen
+  def test_benutzer_setzt_eigene_adresse
+    RedmineBranding::Settings.write('logo_link' => 'custom', 'logo_link_url' => 'https://intranet.example.test/start')
+    log_user('jsmith', 'jsmith')
+    put '/my/account', params: { user: { firstname: 'John' },
+                                 pref: { branding_logo_link: 'custom', branding_logo_link_url: ' /projects/ecookbook ' } }
+    assert_redirected_to '/my/account'
+    assert_equal 'custom', User.find(2).pref.branding_logo_link
+    assert_equal '/projects/ecookbook', User.find(2).pref.branding_logo_link_url
+
+    get '/my/account'
+    assert_equal '/projects/ecookbook', link_meta['content']
+    assert_select 'select#pref_branding_logo_link option[selected][value=custom]'
+    assert_select 'input#pref_branding_logo_link_url[value=?]', '/projects/ecookbook'
+    # Vorgabe des Admins mit ihrer Adresse, nicht "Eigene Adresse"
+    assert_select 'select#pref_branding_logo_link option[value=""]', text: %r{https://intranet\.example\.test/start}
+  end
+
+  def test_eigene_adresse_des_benutzers_ohne_gueltige_adresse_faellt_auf_vorgabe
+    log_user('jsmith', 'jsmith')
+    ['', 'javascript:alert(1)', '//fremd.example.test', 'ftp://x.test'].each do |url|
+      put '/my/account', params: { user: { firstname: 'John' },
+                                   pref: { branding_logo_link: 'custom', branding_logo_link_url: url } }
+      pref = User.find(2).pref
+      assert_equal '', pref.branding_logo_link, url
+      assert_equal '', pref.branding_logo_link_url, url
+    end
+
+    get '/projects'
+    assert_equal '/my/page', link_meta['content']
+  end
+
+  def test_adresse_des_benutzers_gilt_nur_bei_eigener_adresse
     pref = User.find(2).pref
-    pref.branding_logo_link = 'custom'
-    assert_equal '', pref.branding_logo_link
+    pref.branding_logo_link = 'projects'
+    pref.branding_logo_link_url = 'https://intranet.example.test/'
+    pref.save!
+
+    log_user('jsmith', 'jsmith')
+    get '/my/page'
+    assert_equal '/projects', link_meta['content']
   end
 
   def test_admin_sieht_einstellung_beim_benutzer_bearbeiten
